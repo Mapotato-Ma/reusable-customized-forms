@@ -1,6 +1,6 @@
-import { E_FormType } from "../form-repository";
+import { E_FormType } from '../form-repository';
 
 export interface I_FormListItem {
-  type: E_FormType; // 控件类型
+  type: E_FormType | string; // 控件类型
   props: any;
 }

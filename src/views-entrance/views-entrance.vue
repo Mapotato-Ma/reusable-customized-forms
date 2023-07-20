@@ -8,36 +8,44 @@
       <!-- 示例1 -->
       <ReusableCustomForms :form-service="formServiceOne"></ReusableCustomForms>
       <CodeComponent :value="formServiceOne" v-show="formServiceOne.componentList.length > 0" />
-      <!-- 示例2 -->
-      <ReusableCustomForms :form-service="formServiceTwo"></ReusableCustomForms>
-      <CodeComponent :value="formServiceTwo" v-show="formServiceTwo.componentList.length > 0" />
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { FormRepositoryComponent, ReusableCustomForms } from '@/common/components';
-import { E_FormType } from '@/common/components/form-repository';
+import { addComponent } from '@/common/components/form-repository';
 import { FormService } from '@/common/components/reusable-custom-forms/reusable-custom-forms.service';
 import { createVNode, reactive } from 'vue';
 
-const formServiceOne = reactive<FormService>(
-  new FormService({
-    [E_FormType.输入框]: {
-      modelValue: '666666',
-    },
-  }),
+const formServiceOne = reactive<FormService>(new FormService());
+
+addComponent(
+  '原生输入框',
+  'input',
+  { modelValue: '我是Mapotato', placeholder: '请输入用户名' },
+  { vModelProp: 'value', eventName: 'onInput' },
 );
 
-const formServiceTwo = reactive<FormService>(
-  new FormService({
-    [E_FormType.输入框]: {
-      modelValue: '9999999',
-    },
-    [E_FormType.时间选择器]: {
-      modelValue: '8:00:00',
-    },
-  }),
+addComponent(
+  '原生复选框',
+  'input',
+  { modelValue: true, type: 'checkbox' },
+  { vModelProp: 'checked', eventName: 'onChange' },
+);
+
+addComponent(
+  '原生颜色选择器',
+  'input',
+  { modelValue: '#2c2b9e', type: 'color' },
+  { vModelProp: 'value', eventName: 'onInput' },
+);
+
+addComponent(
+  '原生日期选择器',
+  'input',
+  { modelValue: '2023-07-12', type: 'date', min: '2018-01-01', max: '2025-12-31' },
+  { vModelProp: 'value', eventName: 'onChange' },
 );
 
 /**

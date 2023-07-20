@@ -5,11 +5,12 @@
   >
     <div class="rcf-item" v-for="(form, index) in props.formService.componentList" :key="index">
       <component
-        :is="formRepository[form.type]"
-        v-bind="form.props"
-        @update:modelValue="changeModelValue($event, form)"
+        :is="formRepository[form.type].component"
+        v-bind="formRepository[form.type].props"
+        v-model="form.props.modelValue"
       ></component>
       <div class="rcf-item-operates">
+        <!-- TODO: 灵活配置props,用户可编辑 -->
         <t-dropdown
           :options="[
             { content: '原位复制', value: index + 1 },
@@ -59,22 +60,12 @@ function operates(e: DropdownOption, form: I_FormListItem) {
 const dropCallback = (e: DragEvent) => {
   const formData = e.dataTransfer?.getData('formData') as E_FormType;
   if (formData) {
-    const propData = props.formService.formDefaultProps[formData];
+    const propData = formRepository[formData].props;
     props.formService.addForm({
       type: formData,
       props: { ...propData },
     });
   }
-};
-
-const changeModelValue = (
-  e: any,
-  form: {
-    type: E_FormType;
-    props: any;
-  },
-) => {
-  form.props.modelValue = e;
 };
 </script>
 
