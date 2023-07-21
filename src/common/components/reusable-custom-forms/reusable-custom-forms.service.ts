@@ -9,4 +9,17 @@ export class FormService {
   deleteForm(index: number) {
     this.componentList.splice(index, 1);
   }
+  moveForm(index: number, direction: 'up' | 'down') {
+    if (direction === 'up' && this.componentList[index - 1] !== undefined) {
+      [this.componentList[index - 1], this.componentList[index]] = [
+        this.componentList[index],
+        this.componentList[index - 1],
+      ];
+    } else if (direction === 'down' && this.componentList[index + 1] !== undefined) {
+      [this.componentList[index], this.componentList[index + 1]] = [
+        this.componentList[index + 1],
+        this.componentList[index],
+      ];
+    }
+  }
 }

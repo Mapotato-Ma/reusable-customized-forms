@@ -10,6 +10,9 @@ html,
   width: 100%;
   height: 100%;
 }
+body::-webkit-scrollbar{
+  display: none;
+}
 
 .drop-zone-pointer-limit * {
   pointer-events: none !important;

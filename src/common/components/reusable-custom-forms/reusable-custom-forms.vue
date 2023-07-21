@@ -14,26 +14,47 @@
         v-model="form.props.modelValue"
       ></component>
       <div class="rcf-item-operates">
-        <!-- TODO: 灵活配置props,用户可编辑 -->
-        <t-button @click="drawVisible = true">
+        <t-button @click="drawVisibleMap[`${form.type}-${index}`] = true">
           <template #icon>
             <SettingIcon />
           </template>
         </t-button>
-        <t-drawer v-model:visible="drawVisible" header="标题名称" :on-overlay-click="() => (drawVisible = false)">
+        <t-button @click="formService.moveForm(index, 'up')">
+          <template #icon>
+            <ArrowTriangleUpFilledIcon />
+          </template>
+        </t-button>
+        <t-button @click="formService.moveForm(index, 'down')">
+          <template #icon>
+            <ArrowTriangleDownFilledIcon />
+          </template>
+        </t-button>
+        <t-drawer
+          v-model:visible="drawVisibleMap[`${form.type}-${index}`]"
+          header="表单配置"
+          :footer="false"
+          :on-overlay-click="() => (drawVisibleMap[`${form.type}-${index}`] = false)"
+        >
           <t-space direction="vertical" size="large" style="width: 100%">
-            <!-- <t-space direction="vertical" :size="0" style="width: 100%" v-for="formProp in Object.keys(form.props)">
-              <span>{{ formProp }}</span>
-              <t-input v-model="form.props[formProp]" />
-            </t-space> -->
-            <formPropControlsComponent v-bind="form"></formPropControlsComponent>
+            <t-space
+              direction="vertical"
+              :size="0"
+              style="width: 100%"
+              v-for="(prop, index) in Object.keys(form.props).filter((prop) => prop !== 'modelValue')"
+              :key="index"
+            >
+              <span>{{ prop }}</span>
+              <t-input v-model="form.props[prop]" v-if="typeof form.props[prop] === 'string'" />
+              <t-checkbox v-model="form.props[prop]" v-else-if="typeof form.props[prop] === 'boolean'" />
+            </t-space>
           </t-space>
+          <template #footer></template>
         </t-drawer>
         <t-dropdown
           :options="[
-            { content: '原位复制', value: index + 1 },
-            { content: '复制至结尾', value: Infinity },
-            { content: '删除', value: index },
+            { content: '原位复制', value: index + 1, theme: 'default' },
+            { content: '复制至结尾', value: Infinity, theme: 'default' },
+            { content: '删除', value: index, theme: 'error' },
           ]"
           trigger="click"
           @click="operates($event, form)"
@@ -55,14 +76,18 @@
 import { vEasyDrop } from '@/common/directives/drag-drop.directive';
 import { E_FormType, FormRepository } from '../form-repository';
 import { FormService } from './reusable-custom-forms.service';
-import { EllipsisIcon, SettingIcon } from 'tdesign-icons-vue-next';
+import {
+  EllipsisIcon,
+  SettingIcon,
+  ArrowTriangleDownFilledIcon,
+  ArrowTriangleUpFilledIcon,
+} from 'tdesign-icons-vue-next';
 import { DropdownOption } from 'tdesign-vue-next/es/dropdown/type';
 import { I_FormListItem } from './reusable-custom-forms.service.api';
-import { createVNode, ref } from 'vue';
-import { Input } from 'tdesign-vue-next';
+import { ref } from 'vue';
 const props = defineProps<{ formService: FormService; formRepositoryService: FormRepository }>();
 
-const drawVisible = ref<boolean>(false);
+const drawVisibleMap = ref<Record<string, boolean>>({});
 
 function operates(e: DropdownOption, form: I_FormListItem) {
   const newForm: I_FormListItem = { type: form.type, props: { ...form.props } };
@@ -89,26 +114,6 @@ const dropCallback = (e: DragEvent) => {
     });
   }
 };
-
-const formPropControlsComponent = (form: { type: string; props: any }) =>
-  Object.keys(form.props)
-    .filter((prop) => prop !== 'modelValue')
-    .map((prop) => {
-      console.log(prop);
-      return createVNode('div', { style: 'width: 100%' }, [
-        createVNode('span', {}, prop),
-        createVNode(
-          Input,
-          {
-            modelValue: form.props[prop],
-            'onUpdate:modelValue': (value: any) => {
-              form.props[prop] = value;
-            },
-          },
-          prop,
-        ),
-      ]);
-    });
 </script>
 
 <style lang="less" scoped>
@@ -130,6 +135,7 @@ const formPropControlsComponent = (form: { type: string; props: any }) =>
     justify-content: space-between;
     padding: 6px;
     overflow: hidden;
+    border: 1px dotted rgba(45, 43, 158, 0.2);
     .rcf-item-operates {
       width: auto;
       height: 100%;

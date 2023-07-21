@@ -104,11 +104,11 @@ export class FormRepository {
         'font-size: 14px;color:red;font-weight:bolder',
       );
       console.groupEnd();
-      return false;
+      return;
     }
     // 相同逻辑，只写一遍
     this.forceAddComponent(formType, component, props, { vModelProp, eventName });
-    return true;
+    return;
   }
 
   /**

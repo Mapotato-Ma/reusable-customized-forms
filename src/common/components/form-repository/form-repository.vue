@@ -35,7 +35,7 @@ const dragStartCallback = (e: DragEvent) => {
   background-color: #2c2b9e;
   color: #fff;
   overflow: auto;
-  border-radius: 5%;
+  border-radius: 4px;
   .fr-form-item {
     cursor: move;
     user-select: none;
