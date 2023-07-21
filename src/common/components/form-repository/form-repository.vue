@@ -2,9 +2,9 @@
   <div class="form-repository">
     <div
       class="fr-form-item"
-      v-for="form in Object.keys(formRepository)"
+      v-for="form in Object.keys(prop.formRepositoryService.formRepository)"
       :form="form"
-      v-easy-drag="{ dragStartCallback, sign: 'form' }"
+      v-easy-drag="{ dragStartCallback, sign: prop.formRepositoryService.formSign }"
     >
       {{ form }}
     </div>
@@ -13,7 +13,9 @@
 
 <script lang="ts" setup>
 import { vEasyDrag } from '@/common/directives/drag-drop.directive';
-import { formRepository } from '.';
+import { FormRepository } from '.';
+
+const prop = defineProps<{ formRepositoryService: FormRepository }>();
 
 const dragStartCallback = (e: DragEvent) => {
   const data = (e.target as HTMLElement).getAttribute('form');
@@ -33,6 +35,7 @@ const dragStartCallback = (e: DragEvent) => {
   background-color: #2c2b9e;
   color: #fff;
   overflow: auto;
+  border-radius: 5%;
   .fr-form-item {
     cursor: move;
     user-select: none;

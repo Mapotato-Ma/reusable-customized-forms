@@ -1,16 +1,34 @@
 <template>
   <div
     class="reusable-custom-forms"
-    v-easy-drop="{ onEnterClass: 'reusable-custom-forms-dropped', dropCallback, sign: 'form' }"
+    v-easy-drop="{
+      onEnterClass: 'reusable-custom-forms-dropped',
+      dropCallback,
+      sign: props.formRepositoryService.formSign,
+    }"
   >
     <div class="rcf-item" v-for="(form, index) in props.formService.componentList" :key="index">
       <component
-        :is="formRepository[form.type].component"
-        v-bind="formRepository[form.type].props"
+        :is="props.formRepositoryService.formRepository[form.type].component"
+        v-bind="form.props"
         v-model="form.props.modelValue"
       ></component>
       <div class="rcf-item-operates">
         <!-- TODO: 灵活配置props,用户可编辑 -->
+        <t-button @click="drawVisible = true">
+          <template #icon>
+            <SettingIcon />
+          </template>
+        </t-button>
+        <t-drawer v-model:visible="drawVisible" header="标题名称" :on-overlay-click="() => (drawVisible = false)">
+          <t-space direction="vertical" size="large" style="width: 100%">
+            <!-- <t-space direction="vertical" :size="0" style="width: 100%" v-for="formProp in Object.keys(form.props)">
+              <span>{{ formProp }}</span>
+              <t-input v-model="form.props[formProp]" />
+            </t-space> -->
+            <formPropControlsComponent v-bind="form"></formPropControlsComponent>
+          </t-space>
+        </t-drawer>
         <t-dropdown
           :options="[
             { content: '原位复制', value: index + 1 },
@@ -35,12 +53,16 @@
 
 <script lang="ts" setup>
 import { vEasyDrop } from '@/common/directives/drag-drop.directive';
-import { formRepository, E_FormType } from '../form-repository';
+import { E_FormType, FormRepository } from '../form-repository';
 import { FormService } from './reusable-custom-forms.service';
-import { EllipsisIcon } from 'tdesign-icons-vue-next';
+import { EllipsisIcon, SettingIcon } from 'tdesign-icons-vue-next';
 import { DropdownOption } from 'tdesign-vue-next/es/dropdown/type';
 import { I_FormListItem } from './reusable-custom-forms.service.api';
-const props = defineProps<{ formService: FormService }>();
+import { createVNode, ref } from 'vue';
+import { Input } from 'tdesign-vue-next';
+const props = defineProps<{ formService: FormService; formRepositoryService: FormRepository }>();
+
+const drawVisible = ref<boolean>(false);
 
 function operates(e: DropdownOption, form: I_FormListItem) {
   const newForm: I_FormListItem = { type: form.type, props: { ...form.props } };
@@ -60,13 +82,33 @@ function operates(e: DropdownOption, form: I_FormListItem) {
 const dropCallback = (e: DragEvent) => {
   const formData = e.dataTransfer?.getData('formData') as E_FormType;
   if (formData) {
-    const propData = formRepository[formData].props;
+    const propData = props.formRepositoryService.formRepository[formData].props;
     props.formService.addForm({
       type: formData,
       props: { ...propData },
     });
   }
 };
+
+const formPropControlsComponent = (form: { type: string; props: any }) =>
+  Object.keys(form.props)
+    .filter((prop) => prop !== 'modelValue')
+    .map((prop) => {
+      console.log(prop);
+      return createVNode('div', { style: 'width: 100%' }, [
+        createVNode('span', {}, prop),
+        createVNode(
+          Input,
+          {
+            modelValue: form.props[prop],
+            'onUpdate:modelValue': (value: any) => {
+              form.props[prop] = value;
+            },
+          },
+          prop,
+        ),
+      ]);
+    });
 </script>
 
 <style lang="less" scoped>

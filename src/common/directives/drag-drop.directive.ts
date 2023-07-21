@@ -4,14 +4,14 @@ import { fromEvent, filter } from 'rxjs';
  * 拖拽签名
  */
 const dragSign = new (class {
-  private _sign: string | Symbol = Symbol();
+  private _sign: Symbol = Symbol();
   constructor() {
     fromEvent<MouseEvent>(document, 'mouseup').subscribe(() => (this._sign = Symbol()));
   }
-  public set sign(v: string) {
+  public set sign(v: Symbol) {
     this._sign = v;
   }
-  public get sign(): string | Symbol {
+  public get sign(): Symbol {
     return this._sign;
   }
 })();
@@ -24,7 +24,7 @@ export const vEasyDrag = {
     el: HTMLElement,
     binding: {
       value: {
-        sign: string; // 关联的容器，可与注册vEasyDrop指令时中所传sign一致的容器建立数据通讯
+        sign: Symbol; // 关联的容器，可与注册vEasyDrop指令时中所传sign一致的容器建立数据通讯
         dragStartCallback: (e: DragEvent, ...args: Array<unknown>) => void; // 拖起来后触发的回调
         dragStartCallbackArgs?: Array<unknown>; // 拖起来后触发回调的剩余参数，无参数可不传
       };
@@ -50,7 +50,7 @@ export const vEasyDrop = {
     binding: {
       value: {
         onEnterClass: string; // 落入时当前容器的类名
-        sign: string; // 关联的容器，可与注册vEasyDrag指令时中所传sign一致的容器建立数据通讯
+        sign: Symbol; // 关联的容器，可与注册vEasyDrag指令时中所传sign一致的容器建立数据通讯
         dropCallback: (e: DragEvent, ...args: Array<unknown>) => void; // 落入后触发的回调
         dropCallbackArgs?: Array<unknown>; // 落入后触发回调的剩余参数，无参数可不传
       };
