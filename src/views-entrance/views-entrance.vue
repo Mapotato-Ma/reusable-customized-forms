@@ -12,6 +12,12 @@
           :form-repository-service="formRepositoryOne"
         ></ReusableCustomForms>
         <CodeComponent :value="formServiceOne" v-show="formServiceOne.componentList.length > 0" />
+        <!-- 表单一 -->
+        <ReusableCustomForms
+          :form-service="formServiceOneTwo"
+          :form-repository-service="formRepositoryOne"
+        ></ReusableCustomForms>
+        <CodeComponent :value="formServiceOneTwo" v-show="formServiceOneTwo.componentList.length > 0" />
       </div>
     </div>
     <div class="ve-demo-two">
@@ -54,6 +60,7 @@ import { createVNode, reactive } from 'vue';
 
 const formRepositoryOne = new FormRepository();
 const formServiceOne = reactive<FormService>(new FormService());
+const formServiceOneTwo = reactive<FormService>(new FormService());
 
 const formRepositoryTwo = new FormRepository();
 const formServiceTwo = reactive<FormService>(new FormService());

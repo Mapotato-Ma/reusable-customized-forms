@@ -1,6 +1,7 @@
 import { Component, createVNode, ref } from 'vue';
 import { Input, Checkbox, TimePicker } from 'tdesign-vue-next';
 import diyComponentVue from './components/diy-component.vue';
+import { Subject } from 'rxjs';
 
 /**
  * 组件类型库,可修改添加
@@ -10,6 +11,14 @@ export enum E_FormType {
   复选框 = '复选框',
   自定义组件 = '自定义组件',
   时间选择器 = '时间选择器',
+}
+
+/**
+ * 组件类型库,可修改添加
+ */
+export enum E_FormDragAndDrop {
+  拖起 = '拖起',
+  放下 = '放下',
 }
 
 /**
@@ -26,6 +35,9 @@ export class FormRepository {
 
   // 仓库唯一标志，拖拽关联表单使用
   formSign: Symbol;
+
+  // 仓库拖拽流，表单项拖起来后发送数据
+  formDrag$: Subject<E_FormDragAndDrop> = new Subject();
 
   /**
    * 创建一个组件仓库

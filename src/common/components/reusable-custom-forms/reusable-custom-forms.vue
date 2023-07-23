@@ -1,6 +1,6 @@
 <template>
   <div
-    class="reusable-custom-forms"
+    :class="['reusable-custom-forms', dragClass]"
     v-easy-drop="{
       onEnterClass: 'reusable-custom-forms-dropped',
       dropCallback,
@@ -74,7 +74,7 @@
 
 <script lang="ts" setup>
 import { vEasyDrop } from '@/common/directives/drag-drop.directive';
-import { E_FormType, FormRepository } from '../form-repository';
+import { E_FormDragAndDrop, E_FormType, FormRepository } from '../form-repository';
 import { FormService } from './reusable-custom-forms.service';
 import {
   EllipsisIcon,
@@ -84,10 +84,23 @@ import {
 } from 'tdesign-icons-vue-next';
 import { DropdownOption } from 'tdesign-vue-next/es/dropdown/type';
 import { I_FormListItem } from './reusable-custom-forms.service.api';
-import { ref } from 'vue';
+import { onUnmounted, ref } from 'vue';
 const props = defineProps<{ formService: FormService; formRepositoryService: FormRepository }>();
 
 const drawVisibleMap = ref<Record<string, boolean>>({});
+
+// 拖拽类名（响应仓库）
+const dragClass = ref<string>();
+props.formRepositoryService.formDrag$.subscribe({
+  next(value) {
+    if (value === E_FormDragAndDrop.拖起) {
+      dragClass.value = 'reusable-custom-forms-flashing';
+    } else if (value === E_FormDragAndDrop.放下) {
+      dragClass.value = '';
+    }
+  },
+});
+onUnmounted(() => props.formRepositoryService.formDrag$.unsubscribe());
 
 function operates(e: DropdownOption, form: I_FormListItem) {
   const newForm: I_FormListItem = { type: form.type, props: { ...form.props } };
@@ -113,10 +126,19 @@ const dropCallback = (e: DragEvent) => {
       props: { ...propData },
     });
   }
+  props.formRepositoryService.formDrag$.next(E_FormDragAndDrop.放下);
 };
 </script>
 
 <style lang="less" scoped>
+@keyframes flashing {
+  from {
+    box-shadow: inset 0 0 10px 5px rgba(44, 43, 158, 0.3);
+  }
+  to {
+    box-shadow: inset 0 0 10px 5px rgba(45, 43, 158, 0);
+  }
+}
 .reusable-custom-forms {
   border: 3px solid rgba(45, 43, 158, 0.3);
   width: 100%;
@@ -128,6 +150,9 @@ const dropCallback = (e: DragEvent) => {
   border-radius: 4px;
   overflow: hidden;
   transition: border 233ms;
+  &.reusable-custom-forms-flashing {
+    animation: flashing 233ms ease-in alternate infinite;
+  }
   .rcf-item {
     cursor: pointer;
     display: flex;
@@ -160,6 +185,9 @@ const dropCallback = (e: DragEvent) => {
 }
 .reusable-custom-forms.reusable-custom-forms-dropped {
   border: 3px solid #2c2b9e;
+  &.reusable-custom-forms-flashing {
+    animation: unset;
+  }
   .rcf-empty {
     display: none;
   }
